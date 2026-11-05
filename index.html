@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Big Flower</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <header class="header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand"><span>Big</span> Flower</a>
+      <nav class="nav">
+        <a href="index.html" class="nav-link active" data-i18n="home">Главная</a>
+        <a href="catalog.html" class="nav-link" data-i18n="catalog">Каталог</a>
+        <a href="favorites.html" class="nav-link" data-i18n="favorites">Избранное</a>
+        <a href="cart.html" class="nav-link" data-i18n="cart">Корзина</a>
+        <a href="profile.html" class="nav-link" data-i18n="profile">Профиль</a>
+      </nav>
+      <div class="controls">
+        <select id="langSelect" class="lang-select">
+          <option value="ru">RU</option>
+          <option value="uz">UZ</option>
+          <option value="en">EN</option>
+        </select>
+        <button id="themeToggle" class="icon-btn"><i data-lucide="moon"></i></button>
+        <a href="favorites.html" class="icon-btn">
+          <i data-lucide="heart"></i>
+          <span class="badge" id="wishlistBadge">0</span>
+        </a>
+        <a href="cart.html" class="icon-btn">
+          <i data-lucide="shopping-bag"></i>
+          <span class="badge" id="cartBadge">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <span class="hero-tag" data-i18n="heroTag">Премиальная флористика</span>
+        <h1 class="hero-title" data-i18n="heroTitle">Цветы, говорящие на языке чувств</h1>
+        <p class="hero-desc" data-i18n="heroSub">Авторские композиции, редкие сорта и быстрая доставка за 60 минут.</p>
+        <a href="catalog.html" class="btn btn-primary" data-i18n="heroBtn">В каталог</a>
+      </div>
+    </section>
+
+    <section class="container" style="padding: 3rem 0;">
+      <h2 style="font-size: 2.2rem; text-align: center; margin-bottom: 2rem;">Хиты продаж</h2>
+      <div class="grid" id="featuredGrid"></div>
+      <div style="text-align: center; margin-top: 2rem;">
+        <a href="catalog.html" class="btn btn-outline" data-i18n="catalog">Посмотреть все 35 сортов</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">© 2026 Big Flower. All rights reserved.</div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="main.js"></script>
+  <script>
+    function renderPageContent() {
+      const grid = document.getElementById('featuredGrid');
+      grid.innerHTML = flowers.slice(0, 4).map(p => `
+        <article class="card">
+          <div class="card-img-wrap">
+            <img src="${p.image}" alt="${p.name[currentLang]}">
+            <button class="card-fav-btn ${wishlist.includes(p.id) ? 'active' : ''}" onclick="toggleWishlist(${p.id})">
+              <i data-lucide="heart"></i>
+            </button>
+          </div>
+          <div class="card-body">
+            <span class="card-cat">${t(p.category)}</span>
+            <a href="product.html?id=${p.id}" class="card-title">${p.name[currentLang]}</a>
+            <div class="card-footer">
+              <span class="card-price">${p.price.toLocaleString()} ${t('currency')}</span>
+              <button class="btn btn-primary" onclick="addToCart(${p.id})">${t('addToCart')}</button>
+            </div>
+          </div>
+        </article>
+      `).join('');
+      lucide.createIcons();
+    }
+    renderPageContent();
+  </script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Корзина — Big Flower</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <header class="header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand"><span>Big</span> Flower</a>
+      <nav class="nav">
+        <a href="index.html" class="nav-link" data-i18n="home">Главная</a>
+        <a href="catalog.html" class="nav-link" data-i18n="catalog">Каталог</a>
+        <a href="favorites.html" class="nav-link" data-i18n="favorites">Избранное</a>
+        <a href="cart.html" class="nav-link active" data-i18n="cart">Корзина</a>
+        <a href="profile.html" class="nav-link" data-i18n="profile">Профиль</a>
+      </nav>
+      <div class="controls">
+        <select id="langSelect" class="lang-select">
+          <option value="ru">RU</option>
+          <option value="uz">UZ</option>
+          <option value="en">EN</option>
+        </select>
+        <button id="themeToggle" class="icon-btn"><i data-lucide="moon"></i></button>
+        <a href="favorites.html" class="icon-btn"><i data-lucide="heart"></i><span class="badge" id="wishlistBadge">0</span></a>
+        <a href="cart.html" class="icon-btn"><i data-lucide="shopping-bag"></i><span class="badge" id="cartBadge">0</span></a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding: 3rem 0;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 2rem;" data-i18n="cart">Корзина</h1>
+    <div id="cartContent"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">© 2026 Big Flower. All rights reserved.</div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="main.js"></script>
+  <script>
+    function changeQty(id, delta) {
+      const item = cart.find(i => i.id === id);
+      if (!item) return;
+      item.qty += delta;
+      if (item.qty <= 0) {
+        cart = cart.filter(i => i.id !== id);
+      }
+      localStorage.setItem('bf_cart', JSON.stringify(cart));
+      updateBadges();
+      renderPageContent();
+    }
+
+    function completeOrder() {
+      if (cart.length === 0) return;
+      
+      // Сохраняем в историю заказов профиля
+      let orders = JSON.parse(localStorage.getItem('bf_orders')) || [];
+      orders.push({
+        date: new Date().toLocaleDateString(),
+        items: [...cart],
+        id: Math.floor(100000 + Math.random() * 900000)
+      });
+      localStorage.setItem('bf_orders', JSON.stringify(orders));
+
+      alert(t('orderSuccess'));
+      cart = [];
+      localStorage.setItem('bf_cart', JSON.stringify(cart));
+      updateBadges();
+      renderPageContent();
+    }
+
+    function renderPageContent() {
+      const wrapper = document.getElementById('cartContent');
+      if (cart.length === 0) {
+        wrapper.innerHTML = `<p style="text-align: center; color: var(--text-muted); padding: 4rem 0;">${t('emptyCart')}</p>`;
+        return;
+      }
+
+      let grandTotal = 0;
+      const rows = cart.map(item => {
+        const p = flowers.find(f => f.id === item.id);
+        if (!p) return '';
+        const itemSum = p.price * item.qty;
+        grandTotal += itemSum;
+        return `
+          <tr>
+            <td>
+              <div class="table-product">
+                <img src="${p.image}" class="table-img" alt="${p.name[currentLang]}">
+                <div>
+                  <a href="product.html?id=${p.id}" style="text-decoration:none; color:inherit; font-weight:600;">${p.name[currentLang]}</a>
+                  <div style="color:var(--text-muted); font-size:0.85rem;">${p.price.toLocaleString()} ${t('currency')}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="qty-ctrl">
+                <button class="qty-btn" onclick="changeQty(${p.id}, -1)">-</button>
+                <span>${item.qty}</span>
+                <button class="qty-btn" onclick="changeQty(${p.id}, 1)">+</button>
+              </div>
+            </td>
+            <td><strong>${itemSum.toLocaleString()} ${t('currency')}</strong></td>
+            <td><button class="qty-btn" onclick="changeQty(${p.id}, -${item.qty})"><i data-lucide="x"></i></button></td>
+          </tr>
+        `;
+      }).join('');
+
+      wrapper.innerHTML = `
+        <table class="view-table">
+          <tbody>${rows}</tbody>
+        </table>
+        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 2rem; margin-top: 2rem;">
+          <div style="font-size: 1.5rem;">${t('total')} <strong>${grandTotal.toLocaleString()} ${t('currency')}</strong></div>
+          <button class="btn btn-primary" onclick="completeOrder()">${t('checkout')}</button>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    renderPageContent();
+  </script>
+</body>
+</html>

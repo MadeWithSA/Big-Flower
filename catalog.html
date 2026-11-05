@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Каталог — Big Flower</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <header class="header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand"><span>Big</span> Flower</a>
+      <nav class="nav">
+        <a href="index.html" class="nav-link" data-i18n="home">Главная</a>
+        <a href="catalog.html" class="nav-link active" data-i18n="catalog">Каталог</a>
+        <a href="favorites.html" class="nav-link" data-i18n="favorites">Избранное</a>
+        <a href="cart.html" class="nav-link" data-i18n="cart">Корзина</a>
+        <a href="profile.html" class="nav-link" data-i18n="profile">Профиль</a>
+      </nav>
+      <div class="controls">
+        <select id="langSelect" class="lang-select">
+          <option value="ru">RU</option>
+          <option value="uz">UZ</option>
+          <option value="en">EN</option>
+        </select>
+        <button id="themeToggle" class="icon-btn"><i data-lucide="moon"></i></button>
+        <a href="favorites.html" class="icon-btn"><i data-lucide="heart"></i><span class="badge" id="wishlistBadge">0</span></a>
+        <a href="cart.html" class="icon-btn"><i data-lucide="shopping-bag"></i><span class="badge" id="cartBadge">0</span></a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="toolbar">
+      <div class="filter-tabs">
+        <button class="filter-btn active" data-category="all" data-i18n="all">Все</button>
+        <button class="filter-btn" data-category="roses" data-i18n="roses">Розы</button>
+        <button class="filter-btn" data-category="peonies" data-i18n="peonies">Пионы</button>
+        <button class="filter-btn" data-category="tulips" data-i18n="tulips">Тюльпаны</button>
+        <button class="filter-btn" data-category="hydrangeas" data-i18n="hydrangeas">Гортензии</button>
+        <button class="filter-btn" data-category="orchids" data-i18n="orchids">Орхидеи</button>
+        <button class="filter-btn" data-category="exotic" data-i18n="exotic">Экзотика</button>
+      </div>
+      <input type="text" id="searchInput" class="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="Поиск букета...">
+    </div>
+
+    <div class="grid" id="catalogGrid"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">© 2026 Big Flower. All rights reserved.</div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="main.js"></script>
+  <script>
+    let activeCat = 'all';
+    let searchQuery = '';
+
+    function renderPageContent() {
+      const filtered = flowers.filter(p => {
+        const matchesCat = activeCat === 'all' || p.category === activeCat;
+        const matchesQuery = p.name[currentLang].toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCat && matchesQuery;
+      });
+
+      const grid = document.getElementById('catalogGrid');
+      if (filtered.length === 0) {
+        grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem 0;">Ничего не найдено</p>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(p => `
+        <article class="card">
+          <div class="card-img-wrap">
+            <img src="${p.image}" alt="${p.name[currentLang]}">
+            <button class="card-fav-btn ${wishlist.includes(p.id) ? 'active' : ''}" onclick="toggleWishlist(${p.id})">
+              <i data-lucide="heart"></i>
+            </button>
+          </div>
+          <div class="card-body">
+            <span class="card-cat">${t(p.category)}</span>
+            <a href="product.html?id=${p.id}" class="card-title">${p.name[currentLang]}</a>
+            <div class="card-footer">
+              <span class="card-price">${p.price.toLocaleString()} ${t('currency')}</span>
+              <button class="btn btn-primary" onclick="addToCart(${p.id})">${t('addToCart')}</button>
+            </div>
+          </div>
+        </article>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeCat = btn.dataset.category;
+        renderPageContent();
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim();
+      renderPageContent();
+    });
+
+    renderPageContent();
+  </script>
+</body>
+</html>

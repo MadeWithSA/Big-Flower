@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Карточка товара — Big Flower</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <header class="header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand"><span>Big</span> Flower</a>
+      <nav class="nav">
+        <a href="index.html" class="nav-link" data-i18n="home">Главная</a>
+        <a href="catalog.html" class="nav-link" data-i18n="catalog">Каталог</a>
+        <a href="favorites.html" class="nav-link" data-i18n="favorites">Избранное</a>
+        <a href="cart.html" class="nav-link" data-i18n="cart">Корзина</a>
+        <a href="profile.html" class="nav-link" data-i18n="profile">Профиль</a>
+      </nav>
+      <div class="controls">
+        <select id="langSelect" class="lang-select">
+          <option value="ru">RU</option>
+          <option value="uz">UZ</option>
+          <option value="en">EN</option>
+        </select>
+        <button id="themeToggle" class="icon-btn"><i data-lucide="moon"></i></button>
+        <a href="favorites.html" class="icon-btn"><i data-lucide="heart"></i><span class="badge" id="wishlistBadge">0</span></a>
+        <a href="cart.html" class="icon-btn"><i data-lucide="shopping-bag"></i><span class="badge" id="cartBadge">0</span></a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="productDetailContainer"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">© 2026 Big Flower. All rights reserved.</div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="main.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = parseInt(urlParams.get('id')) || 1;
+
+    function renderPageContent() {
+      const p = flowers.find(f => f.id === productId);
+      const container = document.getElementById('productDetailContainer');
+
+      if (!p) {
+        container.innerHTML = `<h2 style="padding: 4rem 0; text-align: center;">Товар не найден</h2>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="product-detail-layout">
+          <img class="detail-img" src="${p.image}" alt="${p.name[currentLang]}">
+          <div class="detail-info">
+            <span class="card-cat">${t(p.category)}</span>
+            <h1 class="detail-title">${p.name[currentLang]}</h1>
+            <div class="detail-price">${p.price.toLocaleString()} ${t('currency')}</div>
+            <p class="detail-desc">${p.desc[currentLang]}</p>
+            <div style="display: flex; gap: 1rem;">
+              <button class="btn btn-primary" onclick="addToCart(${p.id})">
+                <i data-lucide="shopping-bag"></i> ${t('addToCart')}
+              </button>
+              <button class="btn btn-outline" onclick="toggleWishlist(${p.id})">
+                <i data-lucide="heart" ${wishlist.includes(p.id) ? 'fill="currentColor"' : ''}></i> ${t('favorites')}
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    renderPageContent();
+  </script>
+</body>
+</html>

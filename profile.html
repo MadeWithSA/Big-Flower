@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Профиль — Big Flower</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <header class="header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand"><span>Big</span> Flower</a>
+      <nav class="nav">
+        <a href="index.html" class="nav-link" data-i18n="home">Главная</a>
+        <a href="catalog.html" class="nav-link" data-i18n="catalog">Каталог</a>
+        <a href="favorites.html" class="nav-link" data-i18n="favorites">Избранное</a>
+        <a href="cart.html" class="nav-link" data-i18n="cart">Корзина</a>
+        <a href="profile.html" class="nav-link active" data-i18n="profile">Профиль</a>
+      </nav>
+      <div class="controls">
+        <select id="langSelect" class="lang-select">
+          <option value="ru">RU</option>
+          <option value="uz">UZ</option>
+          <option value="en">EN</option>
+        </select>
+        <button id="themeToggle" class="icon-btn"><i data-lucide="moon"></i></button>
+        <a href="favorites.html" class="icon-btn"><i data-lucide="heart"></i><span class="badge" id="wishlistBadge">0</span></a>
+        <a href="cart.html" class="icon-btn"><i data-lucide="shopping-bag"></i><span class="badge" id="cartBadge">0</span></a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding: 3rem 0;">
+    <div class="form-card">
+      <h1 style="font-size: 2.2rem; margin-bottom: 1.5rem; text-align: center;" data-i18n="profileTitle">Личный кабинет</h1>
+      
+      <form id="profileForm">
+        <div class="form-group">
+          <label class="form-label" data-i18n="userName">Имя</label>
+          <input type="text" id="profName" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="userPhone">Телефон</label>
+          <input type="tel" id="profPhone" class="form-control" placeholder="+998 (90) 000-00-00" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="userAddress">Адрес доставки</label>
+          <input type="text" id="profAddress" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="saveProfile">Сохранить профиль</button>
+      </form>
+    </div>
+
+    <div style="max-width: 600px; margin: 3rem auto 0;">
+      <h2 style="font-size: 1.8rem; margin-bottom: 1rem;" data-i18n="orderHistory">История заказов</h2>
+      <div id="orderHistoryContainer"></div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">© 2026 Big Flower. All rights reserved.</div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="main.js"></script>
+  <script>
+    function renderPageContent() {
+      // Загрузка профиля
+      const profile = JSON.parse(localStorage.getItem('bf_user_profile')) || {};
+      if (profile.name) document.getElementById('profName').value = profile.name;
+      if (profile.phone) document.getElementById('profPhone').value = profile.phone;
+      if (profile.address) document.getElementById('profAddress').value = profile.address;
+
+      // Загрузка заказов
+      const orders = JSON.parse(localStorage.getItem('bf_orders')) || [];
+      const histDiv = document.getElementById('orderHistoryContainer');
+      if (orders.length === 0) {
+        histDiv.innerHTML = `<p style="color: var(--text-muted);">${t('noOrders')}</p>`;
+      } else {
+        histDiv.innerHTML = orders.reverse().map(ord => `
+          <div style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; margin-bottom: 0.8rem;">
+            <strong>#${ord.id}</strong> — ${ord.date} (${ord.items.length} поз.)
+          </div>
+        `).join('');
+      }
+    }
+
+    document.getElementById('profileForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const profile = {
+        name: document.getElementById('profName').value,
+        phone: document.getElementById('profPhone').value,
+        address: document.getElementById('profAddress').value
+      };
+      localStorage.setItem('bf_user_profile', JSON.stringify(profile));
+      alert(t('savedAlert'));
+    });
+
+    renderPageContent();
+  </script>
+</body>
+</html>
